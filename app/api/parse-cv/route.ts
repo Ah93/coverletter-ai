@@ -6,15 +6,24 @@ let pdfParse: any = null;
 async function getPdfParser() {
   if (!pdfParse) {
     try {
+      console.log("Loading PDF parser...");
       // Try different import approaches
       try {
+        console.log("Attempting dynamic import of pdf-parse...");
         const pdfModule = await import("pdf-parse");
         pdfParse = pdfModule.default || pdfModule;
+        console.log("PDF parser loaded successfully via dynamic import");
       } catch (importError) {
         console.log("Dynamic import failed, trying require:", importError);
         // Fallback to require if dynamic import fails
-        const requireModule = eval('require("pdf-parse")');
-        pdfParse = requireModule.default || requireModule;
+        try {
+          const requireModule = eval('require("pdf-parse")');
+          pdfParse = requireModule.default || requireModule;
+          console.log("PDF parser loaded successfully via require fallback");
+        } catch (requireError) {
+          console.error("Require fallback also failed:", requireError);
+          throw new Error("PDF parsing library not available");
+        }
       }
     } catch (error) {
       console.error("Failed to load pdf-parse:", error);
@@ -22,6 +31,51 @@ async function getPdfParser() {
     }
   }
   return pdfParse;
+}
+
+// Alternative PDF parsing approach for serverless environments
+async function parsePDFAlternative(buffer: Buffer): Promise<string> {
+  try {
+    console.log("Attempting alternative PDF parsing method...");
+    
+    // This is a basic fallback that might work in some serverless environments
+    // It's not as robust as pdf-parse but can handle simple text-based PDFs
+    
+    // Convert buffer to string and look for text patterns
+    const bufferString = buffer.toString('utf8');
+    
+    // Look for common PDF text markers
+    const textPatterns = [
+      /\/Text\s+<<[^>]*>>/g,
+      /BT[\s\S]*?ET/g,
+      /\([^)]*\)/g
+    ];
+    
+    let extractedText = '';
+    
+    for (const pattern of textPatterns) {
+      const matches = bufferString.match(pattern);
+      if (matches) {
+        extractedText += matches.join(' ') + ' ';
+      }
+    }
+    
+    // Clean up the extracted text
+    if (extractedText) {
+      extractedText = extractedText
+        .replace(/[^\w\s]/g, ' ') // Remove special characters
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
+      
+      console.log("Alternative parsing extracted text length:", extractedText.length);
+      return extractedText;
+    }
+    
+    throw new Error("Alternative parsing method found no text content");
+  } catch (error) {
+    console.error("Alternative PDF parsing failed:", error);
+    throw error;
+  }
 }
 
 export async function POST(req: Request) {
@@ -50,17 +104,25 @@ export async function POST(req: Request) {
     
     let extractedText = "";
 
-    if (fileType === "application/pdf" || fileName.endsWith('.pdf')) {
+        if (fileType === "application/pdf" || fileName.endsWith('.pdf')) {
       console.log("Processing PDF file");
       // Handle PDF files
       try {
         const pdfParser = await getPdfParser();
         const buffer = Buffer.from(await file.arrayBuffer());
         
+        if (!buffer || buffer.length === 0) {
+          throw new Error("Failed to create PDF buffer");
+        }
+        
+        console.log("PDF buffer created, size:", buffer.length);
+        
         // Try parsing with minimal options first
         let data;
         try {
+          console.log("Attempting PDF parsing with default options...");
           data = await pdfParser(buffer);
+          console.log("PDF parsed successfully with default options");
         } catch (parseError) {
           console.log("Simple parsing failed, trying with options:", parseError);
           // Try with specific options if simple parsing fails
@@ -68,30 +130,74 @@ export async function POST(req: Request) {
             max: 0,
             version: 'v2.0.550'
           };
+          console.log("Attempting PDF parsing with custom options:", options);
           data = await pdfParser(buffer, options);
+          console.log("PDF parsed successfully with custom options");
+        }
+        
+        // Validate the parsed data
+        if (!data) {
+          throw new Error("PDF parsing returned null or undefined data");
+        }
+        
+        if (!data.text || typeof data.text !== 'string') {
+          throw new Error("PDF parsing returned invalid text content");
+        }
+        
+        if (data.text.trim().length === 0) {
+          throw new Error("PDF parsing returned empty text content");
         }
         
         extractedText = data.text;
         console.log("PDF parsed successfully, text length:", extractedText.length);
+        console.log("First 100 characters:", extractedText.substring(0, 100));
       } catch (pdfError) {
-        console.error("PDF parsing error:", pdfError);
+        console.error("PDF parsing error details:", {
+          error: pdfError,
+          message: pdfError instanceof Error ? pdfError.message : String(pdfError),
+          stack: pdfError instanceof Error ? pdfError.stack : undefined,
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type
+        });
         
-        // Provide specific error messages based on error type
-        let errorMessage = "Failed to parse PDF. ";
-        const pdfErrorMsg = pdfError instanceof Error ? pdfError.message : String(pdfError);
-        if (pdfErrorMsg.includes('ENOENT')) {
-          errorMessage += "The file might be corrupted or inaccessible. ";
-        } else if (pdfErrorMsg.includes('password')) {
-          errorMessage += "The file might be password-protected. ";
-        } else {
-          errorMessage += "The file might be corrupted, password-protected, or contain only images. ";
+        // Try alternative parsing method as fallback
+        try {
+          console.log("Attempting alternative PDF parsing method...");
+          const buffer = Buffer.from(await file.arrayBuffer());
+          extractedText = await parsePDFAlternative(buffer);
+          console.log("Alternative parsing successful, text length:", extractedText.length);
+          // Continue with the extracted text
+        } catch (alternativeError) {
+          console.error("Alternative parsing also failed:", alternativeError);
+          
+          // Provide specific error messages based on error type
+          let errorMessage = "Failed to parse PDF. ";
+          const pdfErrorMsg = pdfError instanceof Error ? pdfError.message : String(pdfError);
+          
+          if (pdfErrorMsg.includes('ENOENT')) {
+            errorMessage += "The file might be corrupted or inaccessible. ";
+          } else if (pdfErrorMsg.includes('password')) {
+            errorMessage += "The file might be password-protected. ";
+          } else if (pdfErrorMsg.includes('null or undefined data')) {
+            errorMessage += "The PDF parsing service returned invalid data. ";
+          } else if (pdfErrorMsg.includes('invalid text content')) {
+            errorMessage += "The PDF parsing service returned invalid text format. ";
+          } else if (pdfErrorMsg.includes('empty text content')) {
+            errorMessage += "The PDF appears to contain only images or no readable text. ";
+          } else if (pdfErrorMsg.includes('PDF parsing library not available')) {
+            errorMessage += "The PDF parsing service is temporarily unavailable. ";
+          } else {
+            errorMessage += "The file might be corrupted, password-protected, or contain only images. ";
+          }
+          
+          errorMessage += "Please try converting to text or use the manual input option.";
+          
+          return NextResponse.json(
+            { error: errorMessage },
+            { status: 400 }
+          );
         }
-        errorMessage += "Please try converting to text or use the manual input option.";
-        
-        return NextResponse.json(
-          { error: errorMessage },
-          { status: 400 }
-        );
       }
     } else if (
       fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
