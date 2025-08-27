@@ -4,6 +4,9 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // Use the provided API key
 const genAI = new GoogleGenerativeAI("AIzaSyAUgrPIOR1Kokk1f29rvxhkIZom9mToA_o");
 
+// Define valid language types
+type Language = 'english' | 'spanish' | 'french' | 'german' | 'italian' | 'portuguese' | 'dutch' | 'russian' | 'chinese' | 'japanese' | 'korean' | 'arabic' | 'hindi' | 'turkish' | 'polish' | 'swedish' | 'norwegian' | 'danish' | 'finnish';
+
 export async function POST(req: Request) {
   try {
     const { cvText, jobDesc, length, language } = await req.json();
@@ -22,8 +25,8 @@ export async function POST(req: Request) {
       long: "Create a comprehensive cover letter (2-3 paragraphs). Include detailed experience, specific achievements, and strong closing statement."
     };
 
-    // Language-specific instructions
-    const languageInstructions = {
+    // Language-specific instructions with proper typing
+    const languageInstructions: Record<Language, string> = {
       english: "Write the cover letter in English with professional business language.",
       spanish: "Write the cover letter in Spanish (Español) with professional business language. Use appropriate Spanish business terminology and cultural nuances.",
       french: "Write the cover letter in French (Français) with professional business language. Use appropriate French business terminology and cultural nuances.",
@@ -45,6 +48,14 @@ export async function POST(req: Request) {
       finnish: "Write the cover letter in Finnish (Suomi) with professional business language. Use appropriate Finnish business terminology and cultural nuances."
     };
 
+    // Safely get language instruction with fallback
+    const getLanguageInstruction = (lang: any): string => {
+      if (typeof lang === 'string' && lang in languageInstructions) {
+        return languageInstructions[lang as Language];
+      }
+      return languageInstructions.english;
+    };
+
     // Well-engineered prompt for better results
     const prompt = `You are an expert career consultant and professional writer. Your task is to create a compelling email cover letter that perfectly matches the candidate's CV with the job requirements.
 
@@ -55,7 +66,7 @@ IMPORTANT REQUIREMENTS:
 - Personalization: Use specific details from the CV that directly relate to the job
 - Keywords: Incorporate relevant keywords from the job description naturally
 - Closing: Always end with a professional closing such as "Best Wishes", "Best Regards", "Sincerely", "Kind Regards", or "Yours Faithfully" followed by the candidate's name
-- Language: ${languageInstructions[language] || languageInstructions.english}
+- Language: ${getLanguageInstruction(language)}
 
 CV CONTENT:
 ${cvText}
@@ -67,7 +78,7 @@ LENGTH REQUIREMENT:
 ${lengthMap[length] || lengthMap.medium}
 
 LANGUAGE REQUIREMENT:
-${languageInstructions[language] || languageInstructions.english}
+${getLanguageInstruction(language)}
 
 INSTRUCTIONS:
 1. Start with a compelling subject line that includes the job title
