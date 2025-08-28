@@ -20,14 +20,14 @@ export default function JobInput({ onSubmit, isGenerating }: JobInputProps) {
       <textarea
         value={jd}
         onChange={(e) => setJd(e.target.value)}
-        className="w-full p-5 border border-gray-200 rounded-xl h-44 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+        className="w-full p-5 border border-gray-200 rounded-xl h-44 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all-fallback bg-white text-gray-900 placeholder:text-gray-400 caret-blue-600"
         placeholder="Paste the job description here..."
         disabled={isGenerating}
       />
       <button
         onClick={handleSubmit}
         disabled={!jd.trim() || isGenerating}
-        className={`mt-5 w-full px-6 py-4 rounded-xl font-medium transition-all ${
+        className={`mt-5 w-full px-6 py-4 rounded-xl font-medium transition-all-fallback ${
           !jd.trim() || isGenerating
             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
             : "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transform hover:scale-[1.02]"

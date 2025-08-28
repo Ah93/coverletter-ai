@@ -138,21 +138,21 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden">
+    <main className="min-h-screen gradient-bg relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-purple-400/10 to-pink-400/10 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400/10 rounded-full blur-3xl"></div>
       </div>
       <div className="max-w-5xl mx-auto py-16 px-6 relative z-10">
         {/* Modern Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mb-8 shadow-xl">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mb-8 shadow-xl-fallback">
             <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
             </svg>
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 bg-clip-text text-transparent mb-6">
+          <h1 className="text-5xl font-bold gradient-text mb-6">
             AI Cover Letter Generator
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
@@ -161,7 +161,7 @@ export default function Home() {
         </div>
 
         {/* Main Form */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 mb-8">
+        <div className="backdrop-blur-fallback rounded-2xl-fallback shadow-xl-fallback border border-gray-200 p-8 mb-8">
           {/* CV Upload */}
           <div className="mb-10">
             <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
@@ -200,9 +200,9 @@ export default function Home() {
                     onChange={(e) => setLength(e.target.value)}
                     className="sr-only"
                   />
-                  <div className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                  <div className={`p-4 rounded-xl border-2 transition-all-fallback ${
                     length === option.value 
-                      ? 'border-purple-500 bg-purple-50 shadow-lg scale-105' 
+                      ? 'border-purple-500 bg-purple-50 shadow-lg transform-fallback' 
                       : 'border-gray-200 bg-white hover:border-purple-300 hover:shadow-md'
                   }`}>
                     <div className="text-center">
@@ -229,7 +229,7 @@ export default function Home() {
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 bg-white text-gray-900 appearance-none cursor-pointer hover:border-green-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 bg-white text-gray-900 appearance-none-fallback cursor-pointer hover:border-green-300 transition-all-fallback shadow-sm hover:shadow-md"
               >
                 {languageOptions.map((option) => (
                   <option key={option.value} value={option.value} className="py-2">
@@ -265,8 +265,6 @@ export default function Home() {
           </div>
         </div>
 
-
-
         {/* Output */}
         {output && (
           <div className="mt-12">
@@ -279,11 +277,9 @@ export default function Home() {
           </div>
         )}
 
-
-
         {/* Modern Footer */}
         <div className="text-center mt-16 text-gray-500">
-          <div className="inline-flex items-center px-6 py-3 bg-white/60 backdrop-blur-sm rounded-full border border-white/20 shadow-sm">
+          <div className="inline-flex items-center px-6 py-3 backdrop-blur-fallback rounded-full border border-gray-200 shadow-sm">
             <svg className="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
             </svg>

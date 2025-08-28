@@ -115,7 +115,7 @@ export default function TemplateLibrary({ onSelectTemplate }: TemplateLibraryPro
         {templates.map((template) => (
           <div
             key={template.id}
-            className="group relative bg-white rounded-xl border-2 border-gray-100 p-6 hover:border-blue-300 hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:-translate-y-1"
+            className="group relative bg-white rounded-xl border-2 border-gray-100 p-6 hover:border-blue-300 hover:shadow-lg transition-all-fallback cursor-pointer transform hover:-translate-y-1"
             onClick={() => onSelectTemplate(template)}
           >
             <div className="absolute top-4 right-4">

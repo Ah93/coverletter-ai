@@ -94,7 +94,7 @@ export default function QualityChecker({ coverLetter, jobDescription }: QualityC
         <button
           onClick={analyzeQuality}
           disabled={isAnalyzing}
-          className={`w-full px-6 py-3 rounded-xl font-semibold transition-all ${
+          className={`w-full px-6 py-3 rounded-xl font-semibold transition-all-fallback ${
             isAnalyzing
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : "bg-gradient-to-r from-orange-600 to-red-600 text-white hover:from-orange-700 hover:to-red-700"

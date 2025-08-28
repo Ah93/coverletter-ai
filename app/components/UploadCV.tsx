@@ -78,9 +78,9 @@ export default function UploadCV({ onUpload, onTextInput, onFileSelect }: Upload
   return (
     <div>
       <div
-        className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
+        className={`border-2 border-dashed rounded-xl p-8 text-center transition-all-fallback cursor-pointer ${
           isDragOver
-            ? "border-blue-400 bg-blue-50 scale-105"
+            ? "border-blue-400 bg-blue-50 transform-fallback"
             : "border-gray-300 hover:border-blue-300 hover:bg-gray-50 hover:scale-[1.02]"
         }`}
         onDragOver={handleDragOver}

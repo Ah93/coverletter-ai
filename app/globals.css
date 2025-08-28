@@ -22,5 +22,102 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Cross-browser gradient fallbacks */
+.gradient-bg {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+  background: -webkit-linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+  background: -moz-linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #1e293b 0%, #3b82f6 50%, #6366f1 100%);
+  background: -webkit-linear-gradient(135deg, #1e293b 0%, #3b82f6 50%, #6366f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: #1e293b; /* Fallback for browsers that don't support background-clip */
+}
+
+/* Cross-browser backdrop blur fallback */
+.backdrop-blur-fallback {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Cross-browser shadow fallbacks */
+.shadow-xl-fallback {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  -webkit-box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Cross-browser transition fallbacks */
+.transition-all-fallback {
+  transition: all 0.2s ease-in-out;
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+}
+
+/* Cross-browser transform fallbacks */
+.transform-fallback {
+  transform: scale(1.05);
+  -webkit-transform: scale(1.05);
+  -moz-transform: scale(1.05);
+  -ms-transform: scale(1.05);
+}
+
+/* Cross-browser border-radius fallbacks */
+.rounded-2xl-fallback {
+  border-radius: 1rem;
+  -webkit-border-radius: 1rem;
+  -moz-border-radius: 1rem;
+}
+
+/* Cross-browser appearance none fallback */
+.appearance-none-fallback {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Firefox-specific fixes */
+@-moz-document url-prefix() {
+  .backdrop-blur-fallback {
+    background: rgba(255, 255, 255, 0.95);
+  }
+  
+  .gradient-text {
+    color: #1e293b;
+  }
+  
+  /* Fix for Firefox gradient rendering */
+  .gradient-bg {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+  }
+}
+
+/* Safari-specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .backdrop-blur-fallback {
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+/* IE fallbacks */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  .gradient-text {
+    color: #1e293b;
+  }
+  
+  .backdrop-blur-fallback {
+    background: rgba(255, 255, 255, 0.95);
+  }
 }
